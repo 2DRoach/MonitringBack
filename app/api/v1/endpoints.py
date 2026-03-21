@@ -6,7 +6,8 @@ from app.db.database import AsyncSessionLocal
 from app.db.models import User
 from app.schemas.metrics import DashboardResponse
 from app.services.monitor import MonitorService
-from app.core.security import verify_token, create_access_token, verify_password# !!! ВОТ ЭТА СТРОКА ОБЯЗАТЕЛЬНА !!!
+from app.core.security import verify_token, create_access_token, verify_password
+from typing import Optional
 router = APIRouter()
 monitor_service = MonitorService()
 
@@ -45,8 +46,10 @@ def get_dashboard(user = Depends(verify_token)):
 
 # Процессы
 @router.get("/processes")
-def get_processes(user = Depends(verify_token)):
-    return monitor_service.get_processes()
+def get_processes(name: Optional[str] = None,
+    user: Optional[str] = None,
+    token_payload = Depends(verify_token)):
+    return monitor_service.get_processes(name_filter=name, user_filter=user)
 
 # Убить процесс
 @router.post("/process/{pid}/kill")
