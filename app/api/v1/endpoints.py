@@ -51,6 +51,8 @@ def get_processes(user = Depends(verify_token)):
 # Убить процесс
 @router.post("/process/{pid}/kill")
 def kill_process(pid: int, user = Depends(verify_token)):
+    if user.get("role") != "admin":
+        raise HTTPException(status_code=403, detail="Only admins can kill processes")
     if monitor_service.kill_process(pid):
         return {"status": "success"}
     raise HTTPException(status_code=404, detail="Process not found")
