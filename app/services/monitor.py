@@ -57,6 +57,9 @@ class MonitorService:
         return processes[:20]
 
     def kill_process(self, pid: int):
+        if pid <= 100:
+            raise ValueError("Cannot kill system process")
+
         try:
             p = psutil.Process(pid)
             p.terminate()
