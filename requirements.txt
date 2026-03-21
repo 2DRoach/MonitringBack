@@ -1,0 +1,6 @@
+fastapi
+uvicorn[standard]
+psutil
+pydantic
+python-jose[cryptography]  # Для JWT
+python-multipart           # Для формы логина
