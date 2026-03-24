@@ -20,9 +20,9 @@ async def startup_event():
     async with AsyncSessionLocal() as session:
         result = await session.execute(select(User).limit(1))
         user = result.scalar_one_or_none()
-        password = generate_random_password()
-        if not user:
 
+        if not user:
+            password = generate_random_password()
             print(f"Creating default admin user '{settings.ADMIN_USERNAME}'...")
             new_user = User(
                 username=settings.ADMIN_USERNAME,
@@ -30,8 +30,9 @@ async def startup_event():
                 role="admin"
             )
             session.add(new_user)
+            print(f"Login: admin\n password: {password}")
         await session.commit()
-        print(f"Login: admin\n password: {password}")
+
 
 @app.get("/")
 def read_root():
