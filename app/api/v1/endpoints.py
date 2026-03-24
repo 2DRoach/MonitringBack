@@ -1,3 +1,4 @@
+import psutil
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -57,7 +58,13 @@ async def get_current_admin(user = Depends(verify_token)):
 
 # Убить процесс
 @router.post("/process/{pid}/kill")
-def kill_process(pid: int, user = Depends(get_current_admin)):
-    if monitor_service.kill_process(pid):
-        return {"status": "success"}
-    raise HTTPException(status_code=404, detail="Process not found")
+@router.post("/process/{pid}/kill")
+def kill_process(pid: int, user=Depends(get_current_admin)):
+    try:
+        if monitor_service.kill_process(pid):
+            return {"status": "success"}
+        raise HTTPException(status_code=404, detail="Process not found")
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except psutil.AccessDenied:  # Ловим конкретную ошибку psutil
+        raise HTTPException(status_code=403, detail="Permission denied (psutil error)")
